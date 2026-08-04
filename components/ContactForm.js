@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 
 const initialFormState = {
   name: "",
@@ -24,32 +23,29 @@ export default function ContactForm() {
     setStatus("submitting");
     setErrorMessage("");
 
-    if (!supabase) {
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          message: form.message.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong.");
+      }
+
+      setForm(initialFormState);
+      setStatus("success");
+    } catch (err) {
       setStatus("error");
-      setErrorMessage(
-        "Contact form is not configured. Please set Supabase environment variables."
-      );
-      return;
+      setErrorMessage(err.message || "Something went wrong. Please try again.");
     }
-
-    const { error } = await supabase.from("contact_messages").insert([
-      {
-        name: form.name.trim(),
-        email: form.email.trim(),
-        message: form.message.trim(),
-      },
-    ]);
-
-    if (error) {
-      setStatus("error");
-      setErrorMessage(
-        error.message || "Something went wrong. Please try again."
-      );
-      return;
-    }
-
-    setForm(initialFormState);
-    setStatus("success");
   }
 
   const isSubmitting = status === "submitting";
