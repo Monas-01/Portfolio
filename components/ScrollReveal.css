@@ -1,0 +1,38 @@
+.scroll-reveal {
+  margin: 0;
+}
+
+.scroll-reveal-text {
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.scroll-reveal-text.about-body-text {
+  font-size: 1.125rem;
+  line-height: 1.85;
+  font-weight: 400;
+  color: #333330;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 640px) {
+  .scroll-reveal-text.about-body-text {
+    font-size: 1.25rem;
+    line-height: 1.85;
+  }
+}
+
+@media (min-width: 1024px) {
+  .scroll-reveal-text.about-body-text {
+    font-size: 1.35rem;
+    line-height: 1.9;
+  }
+}
+
+.word {
+  display: inline-block;
+  will-change: opacity, filter, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
