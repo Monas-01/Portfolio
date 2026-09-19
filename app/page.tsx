@@ -285,9 +285,9 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-4xl px-6 pt-32 sm:pt-40 lg:pt-44 pb-28 sm:pb-36 space-y-36 sm:space-y-48 lg:space-y-56">
       {/* 1. Hero Section */}
-      <section id="hero" className="scroll-mt-32 sm:scroll-mt-36 text-left">
+      <section id="hero" className="scroll-mt-32 sm:scroll-mt-36 text-center flex flex-col items-center">
         {/* Role badge with decorative architectural dash */}
-        <div className="mb-6 sm:mb-8 flex items-center gap-3 text-sm sm:text-base font-mono uppercase tracking-widest text-muted min-h-[2rem]">
+        <div className="mb-6 sm:mb-8 flex items-center justify-center gap-3 text-sm sm:text-base font-mono uppercase tracking-widest text-muted min-h-[2rem]">
           <span className="inline-block h-[1px] w-6 sm:w-8 bg-neutral-400 shrink-0" aria-hidden="true" />
           <TextType
             text={["DevOps Engineer", "Cloud Engineer", "Full Stack Developer"]}
@@ -301,18 +301,12 @@ export default function HomePage() {
         </div>
 
         {/* High-contrast dominant name */}
-        <h1 className="mb-10 sm:mb-14 text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-bold tracking-tight font-display text-foreground leading-[0.95]">
+        <h1 className="mb-10 sm:mb-14 lg:mb-16 text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-bold tracking-tight font-display text-foreground leading-[0.95] text-center">
           Monas Waqar
         </h1>
 
-        {/* Secondary tagline */}
-        <p className="mb-12 sm:mb-16 text-lg sm:text-xl font-normal leading-relaxed text-[#333330] max-w-xl">
-          Building and automating scalable cloud infrastructure with CI/CD,
-          containerization, and modern DevOps practices.
-        </p>
-
         {/* Hero CTAs */}
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex flex-wrap gap-4 items-center justify-center">
           <a
             href="#projects"
             onClick={(e) => {
