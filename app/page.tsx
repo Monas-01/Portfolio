@@ -2,12 +2,43 @@
 
 import React from "react";
 import Image from "next/image";
-import ContactForm from "@/components/ContactForm";
+import dynamic from "next/dynamic";
 import TextType from "@/components/TextType";
-import ScrollReveal from "@/components/ScrollReveal";
-import LogoLoop from "@/components/LogoLoop";
 import FadeIn from "@/components/FadeIn";
-import BounceCards from "@/components/BounceCards";
+
+const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"), {
+  ssr: true,
+});
+
+const LogoLoop = dynamic(() => import("@/components/LogoLoop"), {
+  ssr: false,
+  loading: () => <div className="h-8 w-full" />,
+});
+
+const BounceCards = dynamic(() => import("@/components/BounceCards"), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{ width: 280, height: 115 }}
+      className="flex items-center justify-center"
+    />
+  ),
+});
+
+const ContactForm = dynamic(() => import("@/components/ContactForm"), {
+  loading: () => (
+    <div className="rounded-2xl border border-border bg-white p-7 sm:p-9 shadow-sm min-h-[460px]">
+      <div className="h-3 w-28 bg-[#f2f0ec] rounded mb-6" />
+      <div className="space-y-5">
+        <div className="h-11 bg-[#f2f0ec]/50 rounded-xl" />
+        <div className="h-11 bg-[#f2f0ec]/50 rounded-xl" />
+        <div className="h-32 bg-[#f2f0ec]/50 rounded-xl" />
+        <div className="h-11 w-36 bg-[#1a1a1a]/20 rounded-full" />
+      </div>
+    </div>
+  ),
+});
+
 import { FaAws, FaLinkedin, FaGithub } from "react-icons/fa6";
 import {
   SiGithubactions,
@@ -241,17 +272,24 @@ function ProjectCard({ project }: { project: Project }) {
       )}
 
       {project.images || project.slug === "vaultly" ? (
-        <div className="flex items-center justify-center py-1 sm:py-1.5 px-2 overflow-hidden rounded-xl border border-border bg-[#f2f0ec]/40">
+        <div className="flex items-center justify-center py-1 sm:py-1.5 px-2 overflow-hidden rounded-xl border border-border bg-[#f2f0ec]/40 min-h-[125px]">
           <BounceCards
             images={
               project.images || [
-                "/projects/vaultly/dashboard.png",
-                "/projects/vaultly/upload.png",
-                "/projects/vaultly/products.png",
-                "/projects/vaultly/warranties.png",
-                "/projects/vaultly/landing.png",
+                "/projects/vaultly/dashboard.webp",
+                "/projects/vaultly/upload.webp",
+                "/projects/vaultly/products.webp",
+                "/projects/vaultly/warranties.webp",
+                "/projects/vaultly/landing.webp",
               ]
             }
+            alts={[
+              "Vaultly dashboard overview with metrics and warranty countdowns",
+              "Vaultly receipt upload and AI data extraction preview",
+              "Vaultly product catalog and inventory list",
+              "Vaultly warranty tracking details and expiry alerts",
+              "Vaultly marketing landing page",
+            ]}
             containerWidth={280}
             containerHeight={115}
             animationDelay={0.4}
@@ -267,6 +305,7 @@ function ProjectCard({ project }: { project: Project }) {
             enableHover={true}
           />
         </div>
+
       ) : project.image ? (
         <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border">
           <Image
@@ -287,18 +326,25 @@ export default function HomePage() {
       {/* 1. Hero Section */}
       <section id="hero" className="scroll-mt-32 sm:scroll-mt-36 text-center flex flex-col items-center">
         {/* Role badge with decorative architectural dash */}
-        <div className="mb-6 sm:mb-8 flex items-center justify-center gap-3 text-sm sm:text-base font-mono uppercase tracking-widest text-muted min-h-[2rem]">
+        <div
+          className="mb-6 sm:mb-8 flex items-center justify-center gap-3 text-sm sm:text-base font-mono uppercase tracking-widest text-muted min-h-[2rem]"
+          aria-label="DevOps Engineer, Cloud Engineer, Full Stack Developer"
+        >
           <span className="inline-block h-[1px] w-6 sm:w-8 bg-neutral-400 shrink-0" aria-hidden="true" />
-          <TextType
-            text={["DevOps Engineer", "Cloud Engineer", "Full Stack Developer"]}
-            typingSpeed={75}
-            pauseDuration={1500}
-            deletingSpeed={50}
-            showCursor
-            cursorCharacter="_"
-            loop
-          />
+          <div className="min-w-[22ch] sm:min-w-[23ch] text-left inline-flex items-center min-h-[1.75rem]">
+            <TextType
+              text={["DevOps Engineer", "Cloud Engineer", "Full Stack Developer"]}
+              typingSpeed={75}
+              pauseDuration={1500}
+              deletingSpeed={50}
+              showCursor
+              cursorCharacter="_"
+              loop
+              aria-label="DevOps Engineer, Cloud Engineer, Full Stack Developer"
+            />
+          </div>
         </div>
+
 
         {/* High-contrast dominant name */}
         <h1 className="mb-10 sm:mb-14 lg:mb-16 text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-bold tracking-tight font-display text-foreground leading-[0.95] text-center">
@@ -460,8 +506,9 @@ export default function HomePage() {
           </div>
 
           {/* Animated Tech LogoLoop */}
-          <div className="rounded-2xl border border-border bg-[#F2F0EC] py-5 px-4 shadow-sm overflow-hidden">
+          <div className="rounded-2xl border border-border bg-[#F2F0EC] py-5 px-4 shadow-sm overflow-hidden min-h-[74px]">
             <LogoLoop
+
               logos={techLogos}
               speed={80}
               fadeOut

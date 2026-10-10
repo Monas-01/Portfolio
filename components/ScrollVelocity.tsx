@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useLayoutEffect, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   motion,
   useScroll,
@@ -9,7 +9,7 @@ import {
   useMotionValue,
   useVelocity,
   useAnimationFrame,
-} from "framer-motion";
+} from "motion/react";
 import "./ScrollVelocity.css";
 
 interface VelocityMapping {
@@ -30,6 +30,7 @@ interface VelocityTextProps {
   scrollerClassName?: string;
   parallaxStyle?: React.CSSProperties;
   scrollerStyle?: React.CSSProperties;
+  isInView: boolean;
 }
 
 export interface ScrollVelocityProps {
@@ -47,24 +48,26 @@ export interface ScrollVelocityProps {
   scrollerStyle?: React.CSSProperties;
 }
 
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
 function useElementWidth<T extends HTMLElement>(
-  ref: React.RefObject<T | null>
+  ref: React.RefObject<T | null>,
+  isEnabled: boolean
 ): number {
   const [width, setWidth] = useState(0);
 
-  useIsomorphicLayoutEffect(() => {
+  useEffect(() => {
+    if (!isEnabled) return;
+
     function updateWidth() {
       if (ref.current) {
         setWidth(ref.current.offsetWidth);
       }
     }
+
+    // Measure once enabled
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, [ref]);
+  }, [ref, isEnabled]);
 
   return width;
 }
@@ -83,6 +86,27 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
   parallaxStyle,
   scrollerStyle,
 }) => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setIsInView(entry.isIntersecting);
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   function VelocityText({
     children,
     baseVelocity = velocity,
@@ -96,6 +120,7 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
     scrollerClassName,
     parallaxStyle,
     scrollerStyle,
+    isInView,
   }: VelocityTextProps) {
     const baseX = useMotionValue(0);
     const scrollOptions =
@@ -116,7 +141,7 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
     );
 
     const copyRef = useRef<HTMLSpanElement>(null);
-    const copyWidth = useElementWidth(copyRef);
+    const copyWidth = useElementWidth(copyRef, isInView);
 
     function wrap(min: number, max: number, v: number): number {
       const range = max - min;
@@ -131,6 +156,8 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
 
     const directionFactor = useRef<number>(1);
     useAnimationFrame((t, delta) => {
+      if (!isInView) return;
+
       let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
 
       if (velocityFactor.get() < 0) {
@@ -165,7 +192,7 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
   }
 
   return (
-    <section>
+    <section ref={sectionRef}>
       {texts.map((text, index) => (
         <VelocityText
           key={index}
@@ -180,6 +207,7 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
           scrollerClassName={scrollerClassName}
           parallaxStyle={parallaxStyle}
           scrollerStyle={scrollerStyle}
+          isInView={isInView}
         >
           {text}
         </VelocityText>

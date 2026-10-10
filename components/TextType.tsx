@@ -9,7 +9,6 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { gsap } from "gsap";
 import "./TextType.css";
 
 interface TextTypeProps {
@@ -52,6 +51,7 @@ export const TextType = ({
   onSentenceComplete,
   startOnVisible = false,
   reverseMode = false,
+  style,
   ...props
 }: TextTypeProps & React.HTMLAttributes<HTMLElement>) => {
   const [displayedText, setDisplayedText] = useState("");
@@ -63,6 +63,13 @@ export const TextType = ({
   const containerRef = useRef<HTMLElement>(null);
 
   const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
+
+  const fullText = useMemo(() => textArray.join(", "), [textArray]);
+
+  const longestLength = useMemo(
+    () => Math.max(...textArray.map((t) => t.length)),
+    [textArray]
+  );
 
   const getRandomSpeed = useCallback(() => {
     if (!variableSpeed) return typingSpeed;
@@ -92,22 +99,6 @@ export const TextType = ({
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [startOnVisible]);
-
-  useEffect(() => {
-    if (showCursor && cursorRef.current) {
-      gsap.set(cursorRef.current, { opacity: 1 });
-      const tween = gsap.to(cursorRef.current, {
-        opacity: 0,
-        duration: cursorBlinkDuration,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut",
-      });
-      return () => {
-        tween.kill();
-      };
-    }
-  }, [showCursor, cursorBlinkDuration]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -186,11 +177,21 @@ export const TextType = ({
     hideCursorWhileTyping &&
     (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
 
+  const containerStyle: React.CSSProperties = {
+    minHeight: "1.5em",
+    minWidth: `${longestLength + (showCursor ? 2 : 0)}ch`,
+    display: "inline-flex",
+    alignItems: "center",
+    ...style,
+  };
+
   return createElement(
     Component,
     {
       ref: containerRef,
       className: `text-type ${className}`,
+      style: containerStyle,
+      "aria-label": props["aria-label"] || fullText,
       ...props,
     },
     <span
@@ -205,6 +206,10 @@ export const TextType = ({
         className={`text-type__cursor ${cursorClassName} ${
           shouldHideCursor ? "text-type__cursor--hidden" : ""
         }`}
+        style={{
+          animationDuration: `${cursorBlinkDuration * 2}s`,
+        }}
+        aria-hidden="true"
       >
         {cursorCharacter}
       </span>

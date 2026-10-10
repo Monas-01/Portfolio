@@ -7,6 +7,7 @@ import "./BounceCards.css";
 export interface BounceCardsProps {
   className?: string;
   images?: string[];
+  alts?: string[];
   containerWidth?: number;
   containerHeight?: number;
   animationDelay?: number;
@@ -19,6 +20,7 @@ export interface BounceCardsProps {
 export default function BounceCards({
   className = "",
   images = [],
+  alts = [],
   containerWidth = 400,
   containerHeight = 400,
   animationDelay = 0.5,
@@ -36,20 +38,43 @@ export default function BounceCards({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".card",
-        { scale: 0 },
-        {
-          scale: 1,
-          stagger: animationStagger,
-          ease: easeType,
-          delay: animationDelay,
+    const container = containerRef.current;
+    if (!container) return;
+
+    let ctx: gsap.Context | null = null;
+    let hasAnimated = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting && !hasAnimated) {
+          hasAnimated = true;
+          observer.disconnect();
+          ctx = gsap.context(() => {
+            gsap.fromTo(
+              ".card",
+              { scale: 0 },
+              {
+                scale: 1,
+                stagger: animationStagger,
+                ease: easeType,
+                delay: animationDelay,
+              }
+            );
+          }, container);
         }
-      );
-    }, containerRef);
-    return () => ctx.revert();
+      },
+      { rootMargin: "100px" }
+    );
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+      ctx?.revert();
+    };
   }, [animationStagger, easeType, animationDelay]);
+
 
   const getNoRotationTransform = (transformStr: string): string => {
     const hasRotate = /rotate\([\s\S]*?\)/.test(transformStr);
@@ -149,7 +174,15 @@ export default function BounceCards({
           onMouseEnter={() => pushSiblings(idx)}
           onMouseLeave={resetSiblings}
         >
-          <img className="image" src={src} alt={`card-${idx}`} />
+          <img
+            className="image"
+            src={src}
+            alt={alts[idx] || `Vaultly screenshot ${idx + 1}`}
+            loading="lazy"
+            decoding="async"
+            width={400}
+            height={178}
+          />
         </div>
       ))}
     </div>

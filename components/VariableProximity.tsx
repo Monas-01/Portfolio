@@ -8,7 +8,6 @@ import React, {
   type RefObject,
   type HTMLAttributes,
 } from "react";
-import { motion } from "framer-motion";
 import "./VariableProximity.css";
 
 type Callback = () => void;
@@ -207,7 +206,7 @@ export const VariableProximity = forwardRef<
           {word.split("").map((letter) => {
             const currentLetterIndex = letterIndex++;
             return (
-              <motion.span
+              <span
                 key={currentLetterIndex}
                 ref={(el) => {
                   letterRefs.current[currentLetterIndex] = el;
@@ -222,7 +221,8 @@ export const VariableProximity = forwardRef<
                 aria-hidden="true"
               >
                 {letter}
-              </motion.span>
+              </span>
+
             );
           })}
           {wordIndex < words.length - 1 && (

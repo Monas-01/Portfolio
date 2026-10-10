@@ -1,7 +1,15 @@
+"use client";
+
 import React from "react";
-import ScrollVelocity from "@/components/ScrollVelocity";
+import dynamic from "next/dynamic";
+
 import { Mail, FileText } from "lucide-react";
 import { FaLinkedin, FaGithub } from "react-icons/fa6";
+
+const ScrollVelocity = dynamic(() => import("@/components/ScrollVelocity"), {
+  ssr: false,
+  loading: () => <div className="h-10 w-full" />,
+});
 
 interface FooterLink {
   label: string;
@@ -40,7 +48,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border mt-32">
       {/* ScrollVelocity skills marquee */}
-      <div className="py-6 sm:py-8 border-b border-border overflow-hidden bg-white/30 backdrop-blur-[2px]">
+      <div className="py-6 sm:py-8 border-b border-border overflow-hidden bg-white/30 backdrop-blur-[2px] min-h-[88px]">
         <ScrollVelocity
           texts={[
             "AWS · DOCKER · KUBERNETES · TERRAFORM · CI/CD · JENKINS · GITHUB ACTIONS · JAVA · PYTHON · MYSQL ·",
@@ -51,6 +59,7 @@ export default function Footer() {
           stiffness={400}
         />
       </div>
+
 
       <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 px-6 py-12 sm:flex-row">
         <p className="text-xs font-mono text-muted">

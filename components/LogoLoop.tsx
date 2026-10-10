@@ -51,9 +51,11 @@ const toCssLength = (value?: number | string): string | undefined =>
 const useResizeObserver = (
   callback: () => void,
   elements: Array<React.RefObject<Element | null>>,
-  dependencies: React.DependencyList
+  dependencies: React.DependencyList,
+  enabled: boolean = true
 ) => {
   useEffect(() => {
+    if (!enabled) return;
     if (typeof window === "undefined" || !window.ResizeObserver) {
       const handleResize = () => callback();
       window.addEventListener("resize", handleResize);
@@ -74,15 +76,17 @@ const useResizeObserver = (
       observers.forEach((observer) => observer?.disconnect());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, dependencies);
+  }, [...dependencies, enabled]);
 };
 
 const useImageLoader = (
   seqRef: React.RefObject<HTMLUListElement | null>,
   onLoad: () => void,
-  dependencies: React.DependencyList
+  dependencies: React.DependencyList,
+  enabled: boolean = true
 ) => {
   useEffect(() => {
+    if (!enabled) return;
     const images = seqRef.current?.querySelectorAll("img") ?? [];
 
     if (images.length === 0) {
@@ -115,7 +119,7 @@ const useImageLoader = (
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, dependencies);
+  }, [...dependencies, enabled]);
 };
 
 const useAnimationLoop = (
@@ -125,7 +129,8 @@ const useAnimationLoop = (
   seqHeight: number,
   isHovered: boolean,
   hoverSpeed: number | undefined,
-  isVertical: boolean
+  isVertical: boolean,
+  enabled: boolean = true
 ) => {
   const rafRef = useRef<number | null>(null);
   const lastTimestampRef = useRef<number | null>(null);
@@ -133,8 +138,10 @@ const useAnimationLoop = (
   const velocityRef = useRef(0);
 
   useEffect(() => {
+    if (!enabled) return;
     const track = trackRef.current;
     if (!track) return;
+
 
     const seqSize = isVertical ? seqHeight : seqWidth;
 
@@ -185,7 +192,11 @@ const useAnimationLoop = (
       }
       lastTimestampRef.current = null;
     };
-  }, [trackRef, targetVelocity, seqWidth, seqHeight, isHovered, hoverSpeed, isVertical]);
+  }, [trackRef, targetVelocity, seqWidth, seqHeight, isHovered, hoverSpeed, isVertical, enabled]);
+
+
+
+
 };
 
 export const LogoLoop = React.memo<LogoLoopProps>(
@@ -238,24 +249,50 @@ export const LogoLoop = React.memo<LogoLoopProps>(
       return magnitude * directionMultiplier * speedMultiplier;
     }, [speed, direction, isVertical]);
 
+    const [isInView, setIsInView] = useState<boolean>(false);
+
+    useEffect(() => {
+      const el = containerRef.current;
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (entry) {
+            setIsInView(entry.isIntersecting);
+          }
+        },
+        { rootMargin: "200px" }
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, []);
+
     const updateDimensions = useCallback(() => {
-      const containerWidth = containerRef.current?.clientWidth ?? 0;
-      const sequenceRect = seqRef.current?.getBoundingClientRect?.();
-      const sequenceWidth = sequenceRect?.width ?? 0;
-      const sequenceHeight = sequenceRect?.height ?? 0;
+      const containerEl = containerRef.current;
+      const seqEl = seqRef.current;
+      if (!containerEl || !seqEl) return;
+
+      // Batch reads
+      const containerWidth = containerEl.clientWidth;
+      const sequenceRect = seqEl.getBoundingClientRect();
+      const sequenceWidth = sequenceRect.width;
+      const sequenceHeight = sequenceRect.height;
+      const parentHeight = isVertical
+        ? (containerEl.parentElement?.clientHeight ?? 0)
+        : 0;
+
+      // Batch writes
       if (isVertical) {
-        const parentHeight =
-          containerRef.current?.parentElement?.clientHeight ?? 0;
-        if (containerRef.current && parentHeight > 0) {
+        if (parentHeight > 0) {
           const targetHeight = Math.ceil(parentHeight);
-          if (containerRef.current.style.height !== `${targetHeight}px`)
-            containerRef.current.style.height = `${targetHeight}px`;
+          if (containerEl.style.height !== `${targetHeight}px`)
+            containerEl.style.height = `${targetHeight}px`;
         }
         if (sequenceHeight > 0) {
           setSeqHeight(Math.ceil(sequenceHeight));
           const viewport =
-            containerRef.current?.clientHeight ??
-            parentHeight ??
+            containerEl.clientHeight ||
+            parentHeight ||
             sequenceHeight;
           const copiesNeeded =
             Math.ceil(viewport / sequenceHeight) +
@@ -274,15 +311,16 @@ export const LogoLoop = React.memo<LogoLoopProps>(
     useResizeObserver(
       updateDimensions,
       [containerRef, seqRef],
-      [logos, gap, logoHeight, isVertical]
+      [logos, gap, logoHeight, isVertical],
+      isInView
     );
 
-    useImageLoader(seqRef, updateDimensions, [
-      logos,
-      gap,
-      logoHeight,
-      isVertical,
-    ]);
+    useImageLoader(
+      seqRef,
+      updateDimensions,
+      [logos, gap, logoHeight, isVertical],
+      isInView
+    );
 
     useAnimationLoop(
       trackRef,
@@ -291,8 +329,10 @@ export const LogoLoop = React.memo<LogoLoopProps>(
       seqHeight,
       isHovered,
       effectiveHoverSpeed,
-      isVertical
+      isVertical,
+      isInView
     );
+
 
     const cssVariables = useMemo(
       () =>

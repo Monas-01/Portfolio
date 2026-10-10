@@ -1,5 +1,15 @@
+@keyframes textTypeBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 .text-type {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   white-space: pre-wrap;
 }
 
@@ -7,6 +17,7 @@
   margin-left: 0.25rem;
   display: inline-block;
   opacity: 1;
+  animation: textTypeBlink 1s infinite ease-in-out;
 }
 
 .text-type__cursor--hidden {

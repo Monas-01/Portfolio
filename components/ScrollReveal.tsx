@@ -12,10 +12,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./ScrollReveal.css";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 export interface ScrollRevealProps {
   children: ReactNode;
   scrollContainerRef?: RefObject<HTMLElement | null>;
@@ -67,54 +63,47 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const scroller =
-      scrollContainerRef && scrollContainerRef.current
-        ? scrollContainerRef.current
-        : window;
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        el,
-        { transformOrigin: "0% 50%", rotate: baseRotation },
-        {
-          ease: "power1.out",
-          rotate: 0,
-          scrollTrigger: {
-            trigger: el,
-            scroller,
-            start: "top 90%",
-            end: rotationEnd,
-            scrub: scrub,
-          },
-        }
-      );
+    let ctx: gsap.Context | null = null;
+    let isInitialized = false;
 
-      const wordElements = el.querySelectorAll<HTMLElement>(".word");
-      if (wordElements.length > 0) {
+    const initAnimation = () => {
+      if (isInitialized) return;
+      isInitialized = true;
+
+      // Register plugin only inside lazily loaded component when near viewport
+      gsap.registerPlugin(ScrollTrigger);
+
+      const scroller =
+        scrollContainerRef && scrollContainerRef.current
+          ? scrollContainerRef.current
+          : window;
+
+      ctx = gsap.context(() => {
         gsap.fromTo(
-          wordElements,
-          { opacity: baseOpacity },
+          el,
+          { transformOrigin: "0% 50%", rotate: baseRotation },
           {
             ease: "power1.out",
-            opacity: 1,
-            stagger: 0.03,
+            rotate: 0,
             scrollTrigger: {
               trigger: el,
               scroller,
-              start: "top 85%",
-              end: wordAnimationEnd,
+              start: "top 90%",
+              end: rotationEnd,
               scrub: scrub,
             },
           }
         );
 
-        if (enableBlur) {
+        const wordElements = el.querySelectorAll<HTMLElement>(".word");
+        if (wordElements.length > 0) {
           gsap.fromTo(
             wordElements,
-            { filter: `blur(${blurStrength}px)` },
+            { opacity: baseOpacity },
             {
               ease: "power1.out",
-              filter: "blur(0px)",
+              opacity: 1,
               stagger: 0.03,
               scrollTrigger: {
                 trigger: el,
@@ -125,12 +114,45 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
               },
             }
           );
+
+          if (enableBlur) {
+            gsap.fromTo(
+              wordElements,
+              { filter: `blur(${blurStrength}px)` },
+              {
+                ease: "power1.out",
+                filter: "blur(0px)",
+                stagger: 0.03,
+                scrollTrigger: {
+                  trigger: el,
+                  scroller,
+                  start: "top 85%",
+                  end: wordAnimationEnd,
+                  scrub: scrub,
+                },
+              }
+            );
+          }
         }
-      }
-    }, el);
+      }, el);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          observer.disconnect();
+          initAnimation();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(el);
 
     return () => {
-      ctx.revert();
+      observer.disconnect();
+      ctx?.revert();
     };
   }, [
     scrollContainerRef,

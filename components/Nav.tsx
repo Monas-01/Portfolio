@@ -23,23 +23,39 @@ export default function Nav() {
 
   useEffect(() => {
     const sectionIds = ["about", "education", "skills", "projects", "contact"];
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateActiveSection = () => {
       const scrollPosition = window.scrollY + 200;
       for (let i = sectionIds.length - 1; i >= 0; i--) {
         const id = sectionIds[i];
         const el = document.getElementById(id);
         if (el && el.offsetTop <= scrollPosition) {
           setActiveSection(`#${id}`);
+          ticking = false;
           return;
         }
       }
       setActiveSection("");
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateActiveSection);
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    const timer = setTimeout(updateActiveSection, 150);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timer);
+    };
   }, []);
+
 
   const handleNavClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
