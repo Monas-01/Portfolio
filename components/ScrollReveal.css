@@ -8,6 +8,24 @@
   font-weight: 600;
 }
 
+.scroll-reveal-text.about-statement {
+  font-family: var(--font-sans);
+  font-size: clamp(1.5rem, 3.2vw, 2.35rem);
+  line-height: 1.42;
+  font-weight: 500;
+  color: #0e0e0e;
+  letter-spacing: -0.02em;
+  text-align: center;
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .scroll-reveal-text.about-statement {
+    font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+    line-height: 1.4;
+  }
+}
+
 .scroll-reveal-text.about-body-text {
   font-size: 1.125rem;
   line-height: 1.85;

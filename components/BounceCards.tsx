@@ -177,7 +177,7 @@ export default function BounceCards({
           <img
             className="image"
             src={src}
-            alt={alts[idx] || `Vaultly screenshot ${idx + 1}`}
+            alt={alts[idx] || `Vaulty screenshot ${idx + 1}`}
             loading="lazy"
             decoding="async"
             width={400}

@@ -214,7 +214,7 @@ function SectionTitle({
 
 function ProjectCard({ project }: { project: Project }) {
   const hasMedia = Boolean(
-    project.images || project.slug === "vaultly" || project.image
+    project.images || project.slug === "vaulty" || project.slug === "vaultly" || project.image
   );
 
   return (
@@ -254,7 +254,7 @@ function ProjectCard({ project }: { project: Project }) {
       </p>
 
       {project.tags && project.tags.length > 0 && (
-        <div className={hasMedia ? "mb-4" : ""}>
+        <div className={project.deployment && project.deployment.length > 0 ? "mb-3" : hasMedia ? "mb-4" : ""}>
           <h4 className="mb-1.5 text-xs font-mono uppercase tracking-wider text-muted">
             Tech Stack
           </h4>
@@ -271,7 +271,25 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
       )}
 
-      {project.images || project.slug === "vaultly" ? (
+      {project.deployment && project.deployment.length > 0 && (
+        <div className={hasMedia ? "mb-4" : ""}>
+          <h4 className="mb-1.5 text-xs font-mono uppercase tracking-wider text-muted">
+            Deployment
+          </h4>
+          <ul className="flex flex-wrap gap-1.5">
+            {project.deployment.map((item) => (
+              <li
+                key={item}
+                className="rounded-full border border-border bg-[#f2f0ec] px-2.5 py-0.5 text-xs text-foreground font-mono"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {project.images || project.slug === "vaulty" || project.slug === "vaultly" ? (
         <div className="flex items-center justify-center py-1 sm:py-1.5 px-2 overflow-hidden rounded-xl border border-border bg-[#f2f0ec]/40 min-h-[125px]">
           <BounceCards
             images={
@@ -284,11 +302,11 @@ function ProjectCard({ project }: { project: Project }) {
               ]
             }
             alts={[
-              "Vaultly dashboard overview with metrics and warranty countdowns",
-              "Vaultly receipt upload and AI data extraction preview",
-              "Vaultly product catalog and inventory list",
-              "Vaultly warranty tracking details and expiry alerts",
-              "Vaultly marketing landing page",
+              "Vaulty dashboard overview with metrics and warranty countdowns",
+              "Vaulty receipt upload and AI data extraction preview",
+              "Vaulty product catalog and inventory list",
+              "Vaulty warranty tracking details and expiry alerts",
+              "Vaulty marketing landing page",
             ]}
             containerWidth={280}
             containerHeight={115}
@@ -385,47 +403,20 @@ export default function HomePage() {
       </section>
 
       {/* 2. About Section */}
-      <section id="about" className="scroll-mt-32 sm:scroll-mt-36">
-        <FadeIn>
-          <SectionTitle tag="Background" title="About" />
-        </FadeIn>
-        <div className="max-w-2xl space-y-7 sm:space-y-8 text-lg sm:text-xl lg:text-[1.35rem] leading-relaxed sm:leading-[1.85] text-[#333330]">
+      <section id="about" className="scroll-mt-32 sm:scroll-mt-36 text-center">
+        <div className="mx-auto max-w-3xl px-4">
           <ScrollReveal
             baseOpacity={0.15}
             enableBlur
-            baseRotation={1.2}
+            baseRotation={0}
             blurStrength={2.5}
             scrub={1}
-            textClassName="about-body-text"
+            containerClassName="text-center"
+            textClassName="about-statement"
           >
             I&apos;m Monas, a Software Engineering student based in Lahore,
             Pakistan, focused on DevOps, cloud infrastructure, and modern
             software development.
-          </ScrollReveal>
-          <ScrollReveal
-            baseOpacity={0.15}
-            enableBlur
-            baseRotation={1.2}
-            blurStrength={2.5}
-            scrub={1}
-            textClassName="about-body-text"
-          >
-            I&apos;m interested in everything that happens between writing code
-            and running it reliably in production. I&apos;ve worked with AWS,
-            Linux, CI/CD, server deployment, and full stack applications, with a
-            growing focus on automation, scalability, and reliable infrastructure.
-          </ScrollReveal>
-          <ScrollReveal
-            baseOpacity={0.15}
-            enableBlur
-            baseRotation={1.2}
-            blurStrength={2.5}
-            scrub={1}
-            textClassName="about-body-text"
-          >
-            Currently, I&apos;m continuing to build real world projects while
-            expanding my knowledge of cloud engineering, DevOps practices, and
-            modern deployment technologies.
           </ScrollReveal>
         </div>
       </section>

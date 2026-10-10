@@ -96,9 +96,9 @@ Below the categorized list, add a **LogoLoop** — horizontally scrolling row of
 ### Projects
 Single featured project card (scalable — grid/layout should support adding more later without redesign):
 
-**Vaultly**
+**Vaulty**
 - One-line: *A smart warranty and receipt management platform that securely organizes product purchases, receipts, and warranty information.*
-- Longer description: *Vaultly helps users keep track of their products, receipts, and warranty expiration dates in one centralized dashboard. Built with a full Products CRUD system, secure receipt uploads with AI-powered data extraction, warranty tracking and reminders, search, notifications, and user settings. The application uses Next.js 16, TypeScript, Prisma, Supabase, AWS S3, and Inngest to provide a scalable full-stack architecture.*
+- Longer description: *Vaulty helps users keep track of their products, receipts, and warranty expiration dates in one centralized dashboard. Built with a full Products CRUD system, secure receipt uploads with AI-powered data extraction, warranty tracking and reminders, search, notifications, and user settings. The application uses Next.js 16, TypeScript, Prisma, Supabase, AWS S3, and Inngest to provide a scalable full-stack architecture.*
 - Tech tags: `Next.js 16` `TypeScript` `React` `Tailwind CSS` `Prisma` `Supabase` `PostgreSQL` `AWS S3` `Inngest` `AI` `Zod`
 - Live demo: **vaulty.site**
 - Screenshots: pending upload (dashboard, product cards, warranty status, receipt info, dark/light UI)
